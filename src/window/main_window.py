@@ -45,17 +45,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             draw_full_object(self.graphicsView, self.full_object)  
             self.set_sliders()
             self.file_save()
-            self.display_message('object displayed', '#00bfff')
+            self.display_message('object displayed', '#B4806E')
         
         else:
-            self.display_message('Error occured while executing the code', '#FF6347')
+            self.display_message('Error occured while executing the code', '#B4806E')
     
     def exec_code(self, cmd):
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1, universal_newlines=True)
         while True:
             line = proc.stdout.readline()
             if line:
-                self.display_message(line.strip(), '#ffffff')
+                self.display_message(line.strip(), '#B4806E')
             if not line and proc.poll() is not None:
                 break
         
@@ -107,7 +107,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.gcode.start_gcode('settings/start_gcode.txt')
         self.gcode.end_gcode('settings/end_gcode.txt')
         self.gcode.save('buffer/G-coordinator.gcode')
-        self.display_message('Gcode Exported', '#00bfff')
+        self.display_message('Gcode Exported', '#B4806E')
         self.gcode_window = GcodeExportWindow()
         self.gcode_window.show()
 
@@ -138,6 +138,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.line_number_widget.setFontSize(int(editor_font_size))
         self.line_number_widget.setFont(editor_font)
         self.message_console.setFont(console_font)
+
+        if theme == 'light':
+            accent = '#B4806E'
+            dark = '#3c3c3c'
+            light = '#FEF8F6'
+            self.button_style_sheet = f"""
+                                        QPushButton {{
+                                            background-color: {light};
+                                            color: {dark};
+                                            border: none;
+                                            padding: 10px 20px;
+                                            border-radius: 10px;
+                                        }}
+                                        QPushButton:hover {{
+                                            background-color: {accent};
+                                        }}
+                                    """
+            self.gcode_export_button.setStyleSheet(self.button_style_sheet)
+            self.machine_settings_button.setStyleSheet(self.button_style_sheet)
+            self.editor.setStyleSheet(f"QTextEdit{{\n            color: {light};\n            background-color: {dark};}}")
+            self.message_console.setStyleSheet(f"background-color: {dark};")
+            self.graphicsView.setBackgroundColor(QtGui.QColor(dark))
+            splitter_style = f"""
+                QSplitter::handle {{
+                    background: {dark};
+                }}
+                QSplitter::handle:horizontal {{
+                    width: 1px;
+                }}
+                QSplitter::handle:vertical {{
+                    height: 1px;
+                }}
+            """
+            self.splitter.setStyleSheet(splitter_style)
     
     def closeEvent(self, event):
         with open('buffer/G-coordinator.gcode', 'w') as file:
